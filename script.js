@@ -43,7 +43,7 @@ function parse() {
 
     if (lineIsValid(text[i]) == false) continue;
 
-    data.push(sanitizeInput(text[i].split('\t')));
+    data.push(text[i].split('\t'));
   }
 }
 
@@ -51,68 +51,8 @@ function isValidHeaderText(str) {
   return typeof str == "string" && str.hashCode() == hashes.headerText;
 }
 
-function sanitizeInput(strArray) {
-  strArray[3] = strArray[3]; // removeSeconds(strArray[3]);
-  strArray[5] = abbreviate(strArray[5]);
-  strArray[6] = abbreviate(strArray[6]);
-  strArray[7] = strArray[7]; // removeSeconds(strArray[7]);
-  strArray[8] = capitalize(strArray[8]);
-  strArray[9] = capitalize(strArray[9]);
-  strArray[11] = capitalize(strArray[11]);
-  strArray[12] = capitalize(strArray[12]);
-  return strArray;
-
-  function removeSeconds(str) {
-    return str.replace(RegExp(':[0-9][0-9] '), ' ');
-  }
-
-  function capitalize(str) {
-    var s = "";
-    var w = new WordState();
-    for (var i = 0; i < str.length; i++) {
-      w.update(str[i]);
-      if (w.beginning) s += str[i].toUpperCase();
-      else s += str[i].toLowerCase();
-    }
-    return s;
-  }
-
-  function abbreviate(str) {
-    var s = "";
-
-    for (var i = 0; i < str.length; i++) {
-      if (isLowerCase(str[i]) && str[i] == str[i - 1])
-        continue;
-
-      if (isCapital(str[i]) || isConsonant(str[i]))
-        s += str[i];
-    }
-
-    if (s.length == 0)
-      s = str;
-    return s;
-  }
-
-  function WordState() {
-    // Initial state
-    this.beginning = false;
-    this.previousChar = ' ';
-    this.update = function(c) {
-      if (isWhiteSpace(this.previousChar) && !isWhiteSpace(c))
-        this.beginning = true;
-      else
-        this.beginning = false;
-
-      this.previousChar = c;
-    };
-  }
-
-  function isCapital(c) { return RegExp('[A-Z]').test(c) }
-  function isConsonant(c) { return RegExp('[BCDFGHJKLMNPQRSTVWXYZ]').test(c.toUpperCase()); }
-  function isLowerCase(c) { return RegExp('[a-z]').test(c) }
-  function isWhiteSpace(c) { return RegExp('[ \t\r\n]').test(c) }
-}
-
+// The number returned is not by any date standard
+// However its numerical sort should be the same as a lexical date sort
 function datekey(d) {
   var date = parsedate(d);
   return date.year * 100000000
@@ -162,8 +102,10 @@ function renderOutput() {
   thead.append(renderHeader());
   table.append(thead);
 
-  for (var i = 0; i < data.length; i++)
-    tbody.append(renderRow(data[i]));
+  for (var i = 0; i < data.length; i++) {
+    var preprocessedData = preprocess(data[i]);
+    tbody.append(renderRow(preprocessedData));
+  }
   table.append(tbody);
 
   $("#output").empty().append(table);
@@ -182,6 +124,25 @@ function renderOutput() {
       tr.append("<td>" + data[i] + "</td>");
     return tr;
   }
+
+  function preprocess(data) {
+    var r = [];
+
+    // deep copy
+    for (var i = 0; i < data.length; i++)
+      r.push(data[i]);
+
+    r[3] = removeSeconds(r[3]);
+    r[5] = abbreviate(r[5]);
+    r[6] = abbreviate(r[6]);
+    r[7] = removeSeconds(r[7]);
+    r[8] = capitalize(r[8]);
+    r[9] = capitalize(r[9]);
+    r[11] = capitalize(r[11]);
+    r[12] = capitalize(r[12]);
+
+    return r;
+  }
 }
 
 function mktag(str) { return $("<" + str + "></" + str + ">"); }
@@ -198,3 +159,61 @@ function lineIsValid(str) {
 
   return true;
 }
+
+////////////////////////////////////////////////
+// Text manipulating and validating functions //
+////////////////////////////////////////////////
+
+function removeSeconds(str) {
+  return str.replace(RegExp(':[0-9][0-9] '), ' ');
+}
+
+function capitalize(str) {
+  var s = "";
+  var w = new WordState();
+  for (var i = 0; i < str.length; i++) {
+    w.update(str[i]);
+    if (w.wordBeginning)
+      s += str[i].toUpperCase();
+    else
+      s += str[i].toLowerCase();
+  }
+  return s;
+}
+
+function abbreviate(str) {
+  var s = "";
+
+  for (var i = 0; i < str.length; i++) {
+    var isRepeat = (str[i] == str[i - 1]);
+
+    if (isLowerCase(str[i]) && isRepeat)
+      continue;
+
+    if (isCapital(str[i]) || isConsonant(str[i]))
+      s += str[i];
+  }
+
+  if (s.length == 0)
+    s = str;
+  return s;
+}
+
+function WordState() {
+  // Initial state
+  this.wordBeginning = false;
+  this.previousChar = ' ';
+  this.update = function(c) {
+    if (isWhiteSpace(this.previousChar) && !isWhiteSpace(c))
+      this.wordBeginning = true;
+    else
+      this.wordBeginning = false;
+
+    this.previousChar = c;
+  };
+}
+
+function isCapital(c) { return RegExp('[A-Z]').test(c) }
+function isConsonant(c) { return RegExp('[BCDFGHJKLMNPQRSTVWXYZ]').test(c.toUpperCase()); }
+function isLowerCase(c) { return RegExp('[a-z]').test(c) }
+function isWhiteSpace(c) { return RegExp('[ \t\r\n]').test(c) }
