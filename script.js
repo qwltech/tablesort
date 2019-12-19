@@ -116,6 +116,10 @@ function renderOutput() {
 
     var tr = mktag("tr");
     var items = headerText.split('\t');
+
+    items[5] = [items[5], items[6]].sort();
+    items[6] = "";
+
     for (const i in items)
       tr.append("<th>" + items[i] + "</th>");
     return tr;
@@ -143,6 +147,9 @@ function renderOutput() {
     r[9] = capitalize(r[9]);
     r[11] = capitalize(r[11]);
     r[12] = capitalize(r[12]);
+
+    r[5] = [r[5], r[6]].sort();
+    r[6] = "";
 
     return r;
   }
