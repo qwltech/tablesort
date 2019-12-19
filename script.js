@@ -111,6 +111,9 @@ function renderOutput() {
   $("#output").empty().append(table);
 
   function renderHeader() {
+    if (headerText.hashCode() != hashes.headerText)
+      return;
+
     var tr = mktag("tr");
     var items = headerText.split('\t');
     for (const i in items)
