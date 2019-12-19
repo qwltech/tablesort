@@ -170,6 +170,54 @@ function lineIsValid(str) {
   return true;
 }
 
+////////////////////////
+// New Data Structure //
+////////////////////////
+
+function ValueEnumerator() {
+  var enums = [];
+
+  this.push = function (data, idx) {
+    if (enums[idx] == undefined)
+      enums[idx] = new Set();
+    else
+      enums[idx].add(data);
+  };
+
+  this.poll = function(idx) {
+    return enums[idx];
+  }
+};
+
+var vEnum = new ValueEnumerator();
+
+function Cell(data) {
+  function value() { return data; }
+}
+
+function Row(properties) {
+  // TODO: if properties isn't an array of strings, bail out here
+
+  var _data = [];
+  _data[0] = new StringCell(properties[0]);
+  _data[1] = new StringCell(properties[1]);
+  _data[2] = new SpecialNumberCell(properties[2]);
+  _data[3] = new DateCell(properties[3]);
+  _data[4] = new StringCell(properties[4]);
+  _data[5] = new DoubleStringCell(properties[5], properties[6]);
+  _data[6] = new DateCell(properties[7]);
+  _data[7] = new AddressCell(properties[8], properties[9], properties[10]);
+  _data[8] = new StringCell(properies[11]);
+  _data[9] = new PhoneCell(properies[12]);
+
+  // Report to registry
+  vEnum.push(_data[0], 0);
+  vEnum.push(_data[1], 1);
+  vEnum.push(_data[4], 4);
+  // 5, 6 conundrum
+  vEnum.push(_data[9], 9);
+}
+
 ////////////////////////////////////////////////
 // Text manipulating and validating functions //
 ////////////////////////////////////////////////
