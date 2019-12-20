@@ -21,6 +21,7 @@ const hashes = {
 };
 
 var data = [];
+var dataMeta = []; // TODO: absorb into future data object
 var headerText = "";
 
 (function mapInterfaceToFunctions() {
@@ -35,6 +36,7 @@ function run() {
 
 function parse() {
   data = [];
+  dataMeta = [];
   var text = $("#input").val().split('\n');
 
   for (const i in text) {
@@ -44,6 +46,7 @@ function parse() {
     if (lineIsValid(text[i]) == false) continue;
 
     data.push(text[i].split('\t'));
+    dataMeta.push({visible: true});
   }
 }
 
@@ -103,6 +106,9 @@ function renderOutput() {
   table.append(thead);
 
   for (var i = 0; i < data.length; i++) {
+    if (dataMeta[i].visible != true)
+      break;
+    
     var preprocessedData = preprocess(data[i]);
     tbody.append(renderRow(preprocessedData));
   }
