@@ -34,6 +34,24 @@ function run() {
   renderOutput();
 }
 
+// Constructor for new data structure
+function Item(textArray) {
+  this.data = copyArray(textArray);
+}
+
+Item.prototype.render = function (idx) {
+  // default behavior: render as is
+  return this.data[idx];
+}
+
+// utility
+function copyArray(a) {
+  var r = [];
+  for (var i = 0; i < a.length; i++)
+    r.push(a[i]);
+  return r;
+}
+
 function parse() {
   data = [];
   dataMeta = [];
