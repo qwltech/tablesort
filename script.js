@@ -111,7 +111,7 @@ function parsedate(str) {
 function sort() {
   // data.sort(firstBy(7));
   data.sort(firstBy(0).thenBy(1).thenBy(function (v) {
-    return datekey(v[7]);
+    return datekey(v[3]);
   }));
 }
 
